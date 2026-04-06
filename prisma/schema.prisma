@@ -1,0 +1,40 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  // url = env("DATABASE_URL")  <-- REMOVE OR COMMENT THIS OUT
+}
+
+model User {
+  id String @id @default(cuid())
+  clerkId String @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  readingProgress ReadingProgress[]
+  selectedPlan SelectedPlan?
+}
+
+model ReadingProgress {
+  id String @id @default(cuid())
+  userId String
+  planId String?
+  book String
+  chapter Int
+  completed Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([userId, planId, book, chapter])
+}
+
+model SelectedPlan {
+  id String @id @default(cuid())
+  userId String @unique
+  planId String?
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
