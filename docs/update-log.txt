@@ -1,0 +1,58 @@
+================================================================================
+BIBLELOG UPDATE LOG — June 10, 2026
+================================================================================
+
+CHANGES MADE
+------------
+
+Project Structure
+  - Moved bible-data.ts and reading-plans.ts from /lib to /data
+  - Created lib/db.ts with shared getOrCreateUser() helper for API routes
+  - Extracted data fetching into hooks/use-reading-progress.ts
+  - bible-app.tsx reduced from ~420 to ~160 lines
+
+Reading Plans
+  - Removed free reading mode and one-chapter-a-day plan
+  - Renamed summer challenge to Fall Reading Challenge (ID: fall-challenge)
+  - Calendar updated from June to September
+  - 5 placeholder days added (Sept 1-5, Genesis 1-10) until full plan is ready
+
+Progress Saving
+  - Fixed race condition where switching plans would write data under the wrong
+    planId in the database
+  - Save now fires directly in toggleChapter instead of a useEffect, and only
+    sends the single changed chapter per toggle
+
+Database & Deployment
+  - Connected Neon (free Postgres) as the database
+  - Fixed Prisma config (url was commented out in schema.prisma; moved to
+    prisma.config.ts as Prisma 7 requires)
+  - Added "prisma generate &&" to build script so Vercel generates the client
+    before building
+  - Fixed pnpm lockfile so Vercel's frozen install passes
+  - Fixed Vercel Framework Preset from "Other" to "Next.js" (was causing 404)
+  - Moved middleware.ts to proxy.ts to fix Clerk's Node.js module incompatibility
+    with Vercel's Edge Runtime
+
+================================================================================
+HOW IT WORKS
+================================================================================
+
+When a user visits the app, proxy.ts initializes Clerk auth on every request.
+The root layout wraps everything in ClerkProvider so auth state is available
+client-side. bible-app.tsx is the main component — it calls
+useReadingProgress() which fetches the user's saved progress from
+/api/progress (Neon database) on load, or falls back to localStorage if not
+signed in. When a user taps a chapter, toggleChapter updates local state and
+immediately POSTs the change to /api/progress which upserts it in Neon.
+
+The home tab shows fall-challenge-view.tsx — a September calendar where tapping
+a day reveals that day's chapters to mark off. The plan tab (plan-page.tsx)
+shows the full schedule with all days and stats. The profile tab shows overall
+completion stats. All chapter toggle buttons use the shared chapter-toggle.tsx
+component. Progress is scoped to the fall-challenge plan only.
+
+Stack: Next.js 16 + React 19 + TypeScript + Tailwind + Clerk (auth) +
+Prisma 7 + Neon (Postgres) + Vercel (hosting) — all on free tiers.
+
+================================================================================
