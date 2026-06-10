@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { ChevronDown, ChevronUp, BookOpen } from "lucide-react"
-import { type BibleBook } from "@/lib/bible-data"
+import { type BibleBook } from "@/data/bible-data"
 import { ChapterToggle } from "./chapter-toggle"
 
 interface BookListProps {

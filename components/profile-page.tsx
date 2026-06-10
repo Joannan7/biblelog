@@ -1,7 +1,7 @@
 "use client"
 
 import { User, BookOpen, Award, Settings, ChevronRight } from "lucide-react"
-import { totalChapters, bibleBooks } from "@/lib/bible-data"
+import { totalChapters, bibleBooks } from "@/data/bible-data"
 
 interface ProfilePageProps {
   chaptersRead: number

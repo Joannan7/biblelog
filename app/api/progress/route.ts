@@ -1,64 +1,38 @@
-import { auth } from "@clerk/nextjs/server";
-import { prisma } from "@/lib/prisma";
-import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server"
+import { prisma } from "@/lib/prisma"
+import { getOrCreateUser } from "@/lib/db"
+import { NextRequest, NextResponse } from "next/server"
 
 export async function GET(request: NextRequest) {
   try {
-    const { userId: clerkUserId } = await auth();
+    const { userId: clerkUserId } = await auth()
+    if (!clerkUserId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-    if (!clerkUserId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    const user = await getOrCreateUser(clerkUserId)
+    const { searchParams } = new URL(request.url)
+    const planId = searchParams.get("planId")
 
-    const user = await prisma.user.upsert({
-      where: { clerkId: clerkUserId },
-      update: {},
-      create: { clerkId: clerkUserId },
-    });
+    const progress = await prisma.readingProgress.findMany({
+      where: { userId: user.id, ...(planId ? { planId } : {}) },
+    })
 
-      const { searchParams } = new URL(request.url);
-      const planId = searchParams.get("planId");
-
-      const where: any = { userId: user.id };
-      if (planId) {
-        where.planId = planId;
-      }
-
-      const progress = await prisma.readingProgress.findMany({
-        where,
-      });
-
-    return NextResponse.json(progress);
+    return NextResponse.json(progress)
   } catch (error) {
-    console.error("Error fetching progress:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch progress" },
-      { status: 500 }
-    );
+    console.error("Error fetching progress:", error)
+    return NextResponse.json({ error: "Failed to fetch progress" }, { status: 500 })
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId: clerkUserId } = await auth();
+    const { userId: clerkUserId } = await auth()
+    if (!clerkUserId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
 
-    if (!clerkUserId) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const user = await prisma.user.upsert({
-      where: { clerkId: clerkUserId },
-      update: {},
-      create: { clerkId: clerkUserId },
-    });
-
-    const { changes } = await request.json();
+    const user = await getOrCreateUser(clerkUserId)
+    const { changes } = await request.json()
 
     if (!Array.isArray(changes)) {
-      return NextResponse.json(
-        { error: "Expected changes array" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Expected changes array" }, { status: 400 })
     }
 
     const updates = await Promise.all(
@@ -82,14 +56,11 @@ export async function POST(request: NextRequest) {
           },
         })
       )
-    );
+    )
 
-    return NextResponse.json({ saved: updates.length });
+    return NextResponse.json({ saved: updates.length })
   } catch (error) {
-    console.error("Error updating progress:", error);
-    return NextResponse.json(
-      { error: "Failed to update progress" },
-      { status: 500 }
-    );
+    console.error("Error updating progress:", error)
+    return NextResponse.json({ error: "Failed to update progress" }, { status: 500 })
   }
 }
