@@ -1,5 +1,7 @@
 "use client"
 
+import { useTheme } from "next-themes"
+
 interface ProgressCircleProps {
   progress: number
   size?: number
@@ -7,16 +9,19 @@ interface ProgressCircleProps {
 }
 
 export function ProgressCircle({ progress, size = 160, strokeWidth = 12 }: ProgressCircleProps) {
+  const { resolvedTheme } = useTheme()
   const radius = (size - strokeWidth) / 2
   const circumference = radius * 2 * Math.PI
   const offset = circumference - (progress / 100) * circumference
+
+  const dublinBlue = resolvedTheme === "dark" ? "oklch(63% 0.05 225)" : "oklch(40% 0.05 225)"
 
   const rounded = Math.round(progress)
   const strokeColor =
     rounded >= 100
       ? "oklch(50% 0.06 120)"  // Limerick green
       : rounded >= 50
-      ? "oklch(40% 0.05 225)"  // Dublin blue
+      ? dublinBlue
       : "oklch(72% 0.09 63)"   // Cork amber
 
   return (
