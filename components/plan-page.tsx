@@ -53,7 +53,7 @@ export function PlanPage({ readChapters, onToggleChapter }: PlanPageProps) {
               <div key={i} className="rounded-lg border border-border p-3">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm font-medium text-foreground">{dateLabel}</span>
-                  {dayCompleted && <CheckCircle className="h-4 w-4 text-green-500" />}
+                  {dayCompleted && <CheckCircle className="h-4 w-4 text-emerald-800" />}
                   {!dayCompleted && (
                     <span className="text-xs text-muted-foreground">{dayRead}/{day.chapters.length}</span>
                   )}
