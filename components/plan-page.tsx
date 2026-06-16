@@ -45,7 +45,7 @@ export function PlanPage({ readChapters, onToggleChapter }: PlanPageProps) {
         <h3 className="mb-4 text-base font-semibold text-foreground">Full Schedule</h3>
         <div className="flex flex-col gap-3">
           {plan.days.map((day, i) => {
-            const dateLabel = day.date || `Day ${day.day}`
+            const dateLabel = day.date
             const dayRead = day.chapters.filter(({ book, chapter }) => readChapters[book]?.[chapter - 1]).length
             const dayCompleted = dayRead === day.chapters.length
 

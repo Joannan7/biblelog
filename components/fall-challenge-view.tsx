@@ -10,40 +10,103 @@ interface Props {
   onToggleChapter: (book: string, chapterIndex: number) => void
 }
 
+const MONTHS = [
+  { num: 9,  name: "September", short: "Sept", days: 30 },
+  { num: 10, name: "October",   short: "Oct",  days: 31 },
+  { num: 11, name: "November",  short: "Nov",  days: 30 },
+  { num: 12, name: "December",  short: "Dec",  days: 31 },
+]
+
+function currentMonth(): number {
+  const m = new Date().getMonth() + 1
+  return m >= 9 && m <= 12 ? m : 9
+}
+
 export function FallChallengeView({ plan, readChapters, onToggleChapter }: Props) {
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth)
   const [selectedDay, setSelectedDay] = useState<ReadingPlan["days"][number] | null>(null)
 
   const isDayCompleted = (day: ReadingPlan["days"][number]) =>
     day.chapters.every(({ book, chapter }) => readChapters[book]?.[chapter - 1])
 
+  // index plan days by "M/D" key for O(1) lookup
+  const planByDate = new Map(plan.days.map((d) => [d.date, d]))
+
+  const month = MONTHS.find((m) => m.num === selectedMonth)!
+  const today = new Date()
+  const todayKey =
+    today.getMonth() + 1 === selectedMonth
+      ? `${selectedMonth}/${today.getDate()}`
+      : null
+
   return (
     <>
       <div className="rounded-xl bg-card p-5 shadow-sm">
-        <h2 className="mb-4 text-lg font-semibold text-foreground">September Calendar</h2>
-        <div className="grid grid-cols-7 gap-2">
-          {Array.from({ length: 30 }, (_, i) => i + 1).map((day) => {
-            const dayData = plan.days.find((d) => d.date === `Sept ${day}`)
+        {/* Month tabs */}
+        <div className="mb-4 flex gap-1 rounded-lg bg-secondary p-1">
+          {MONTHS.map((m) => (
+            <button
+              key={m.num}
+              onClick={() => {
+                setSelectedMonth(m.num)
+                setSelectedDay(null)
+              }}
+              className={`flex-1 rounded-md py-1.5 text-xs font-medium transition-colors ${
+                selectedMonth === m.num
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {m.short}
+            </button>
+          ))}
+        </div>
+
+        <h2 className="mb-3 text-sm font-semibold text-muted-foreground">{month.name}</h2>
+
+        {/* Calendar grid */}
+        <div className="grid grid-cols-7 gap-1.5">
+          {Array.from({ length: month.days }, (_, i) => i + 1).map((day) => {
+            const key = `${month.num}/${day}`
+            const dayData = planByDate.get(key)
+            const completed = dayData ? isDayCompleted(dayData) : false
+            const isToday = key === todayKey
+
             return (
               <button
                 key={day}
                 onClick={() => dayData && setSelectedDay(dayData)}
-                className={`aspect-square flex items-center justify-center rounded-lg text-sm font-medium ${
-                  dayData
-                    ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                    : "bg-secondary text-muted-foreground"
-                }`}
                 disabled={!dayData}
+                className={`aspect-square flex items-center justify-center rounded-lg text-xs font-medium transition-colors
+                  ${isToday ? "ring-2 ring-primary ring-offset-1" : ""}
+                  ${
+                    completed
+                      ? "bg-green-500 text-white hover:bg-green-600"
+                      : dayData
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                      : "bg-secondary text-muted-foreground cursor-default"
+                  }`}
               >
                 {day}
               </button>
             )
           })}
         </div>
+
+        {/* Legend */}
+        <div className="mt-4 flex items-center gap-4 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-sm bg-primary" /> Reading
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="h-2.5 w-2.5 rounded-sm bg-green-500" /> Done
+          </span>
+        </div>
       </div>
 
       {selectedDay && (
         <div className="rounded-xl bg-card p-5 shadow-sm">
-          <h3 className="mb-4 text-lg font-semibold text-foreground">Daily Progress</h3>
+          <h3 className="mb-4 text-lg font-semibold text-foreground">Daily Reading</h3>
           <div
             className={`flex items-center justify-between rounded-lg p-3 ${
               isDayCompleted(selectedDay) ? "bg-green-100 dark:bg-green-900" : "bg-secondary"
