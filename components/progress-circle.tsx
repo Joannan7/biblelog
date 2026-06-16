@@ -11,6 +11,14 @@ export function ProgressCircle({ progress, size = 160, strokeWidth = 12 }: Progr
   const circumference = radius * 2 * Math.PI
   const offset = circumference - (progress / 100) * circumference
 
+  const rounded = Math.round(progress)
+  const strokeColor =
+    rounded >= 100
+      ? "oklch(50% 0.06 120)"  // Limerick green
+      : rounded >= 50
+      ? "oklch(40% 0.05 225)"  // Dublin blue
+      : "oklch(72% 0.09 63)"   // Cork amber
+
   return (
     <div className="relative flex items-center justify-center">
       <svg width={size} height={size} className="-rotate-90">
@@ -28,12 +36,12 @@ export function ProgressCircle({ progress, size = 160, strokeWidth = 12 }: Progr
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="oklch(52% 0.105 223.128)"
+          stroke={strokeColor}
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
           strokeDashoffset={offset}
           strokeLinecap="round"
-          className="text-primary transition-all duration-500"
+          className="transition-all duration-500"
         />
       </svg>
       <div className="absolute flex flex-col items-center justify-center">

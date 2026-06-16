@@ -81,7 +81,7 @@ export function FallChallengeView({ plan, readChapters, onToggleChapter }: Props
                   ${isToday ? "ring-2 ring-primary ring-offset-1" : ""}
                   ${
                     completed
-                      ? "bg-emerald-800 text-white hover:bg-emerald-900"
+                      ? "bg-success text-success-foreground hover:bg-success/90"
                       : dayData
                       ? "bg-primary text-primary-foreground hover:bg-primary/90"
                       : "bg-secondary text-muted-foreground cursor-default"
@@ -99,7 +99,7 @@ export function FallChallengeView({ plan, readChapters, onToggleChapter }: Props
             <span className="h-2.5 w-2.5 rounded-sm bg-primary" /> Reading
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="h-2.5 w-2.5 rounded-sm bg-emerald-800" /> Done
+            <span className="h-2.5 w-2.5 rounded-sm bg-success" /> Done
           </span>
         </div>
       </div>
@@ -109,7 +109,7 @@ export function FallChallengeView({ plan, readChapters, onToggleChapter }: Props
           <h3 className="mb-4 text-lg font-semibold text-foreground">Daily Reading</h3>
           <div
             className={`flex items-center justify-between rounded-lg p-3 ${
-              isDayCompleted(selectedDay) ? "bg-emerald-50 dark:bg-emerald-950" : "bg-secondary"
+              isDayCompleted(selectedDay) ? "bg-success/10" : "bg-secondary"
             }`}
           >
             <div>
@@ -118,7 +118,7 @@ export function FallChallengeView({ plan, readChapters, onToggleChapter }: Props
                 {selectedDay.chapters.map((c) => `${c.book} ${c.chapter}`).join(", ")}
               </div>
             </div>
-            <div className={`text-sm ${isDayCompleted(selectedDay) ? "text-emerald-800" : "text-muted-foreground"}`}>
+            <div className={`text-sm ${isDayCompleted(selectedDay) ? "text-success" : "text-muted-foreground"}`}>
               {isDayCompleted(selectedDay) ? "Completed" : "Pending"}
             </div>
           </div>
