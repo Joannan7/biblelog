@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
-import { BookOpen, LogOut } from "lucide-react"
+import { useState, useEffect } from "react"
+import { BookOpen, LogOut, Sun, Moon } from "lucide-react"
+import { useTheme } from "next-themes"
 import { useUser, SignOutButton } from "@clerk/nextjs"
 import { readingPlans } from "@/data/reading-plans"
 import { useReadingProgress } from "@/hooks/use-reading-progress"
@@ -19,6 +20,9 @@ export function BibleApp() {
   const { user } = useUser()
   const { readChapters, isLoaded, toggleChapter } = useReadingProgress()
   const [activeTab, setActiveTab] = useState<Tab>("home")
+  const { resolvedTheme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
 
   const totalChapters = plan.days.reduce((sum, day) => sum + day.chapters.length, 0)
   const chaptersRead = plan.days.reduce((sum, day) => {
@@ -48,6 +52,15 @@ export function BibleApp() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {mounted && (
+              <button
+                onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+                className="rounded-lg p-2 hover:bg-secondary"
+                aria-label="Toggle theme"
+              >
+                {resolvedTheme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </button>
+            )}
             {user ? (
               <>
                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10">
