@@ -39,7 +39,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning className={`${geist.variable} ${geistMono.variable}`}>
         <body className="font-sans antialiased">
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <ThemeProvider attribute="class" defaultTheme="light">
             {children}
           </ThemeProvider>
           <Analytics />
